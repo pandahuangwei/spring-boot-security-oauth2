@@ -1,0 +1,9 @@
+##开发环境私有配置
+server:
+  port: 8082
+  address:
+  context-parameters: # Servlet context init parameters, e.g. server.context-parameters.a=alpha
+  context-path: # the context path, defaults to '/'
+  servlet-path: # the servlet path, defaults to '/'
+  session:
+    timeout: 30
