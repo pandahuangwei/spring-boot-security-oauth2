@@ -6,7 +6,7 @@ Spring Boot Version : 1.5.3.RELEASE
 * http://projects.spring.io/spring-security-oauth/[Spring Security OAuth]
 * http://projects.spring.io/spring-data-jpa/[Spring Data JPA]
 
-###module: memory
+### module: memory
 #### 该工程的认证使用的是内存数据(只是demo使用)
 通过mvn将工程引入IDE,
 修改maven的conf.xml,加入阿里云maven仓,这样下载工程所需的jar就会快很多:
@@ -87,7 +87,7 @@ curl http://localhost:8082/greeting -H "Authorization: Bearer 6f453ba0-a8cf-4581
 ```
 
 
-###module: store
+### module: store
 在上面的例子memory中，所有的token信息都是保存在内存中的，这显然无法在生产环境中使用(进程结束后所有token丢失, 用户需要重新授权)，因此我们需要将这些信息进行持久化操作。 
 把授权服务器中的数据存储到数据库中并不难，因为 Spring Security OAuth 已经为我们设计好了一套Schema和对应的DAO对象。
 框架为我们提前设计好了schema, 在gitHub上：https://github.com/spring-projects/spring-security-oauth/blob/master/spring-security-oauth2/src/test/resources/schema.sql
