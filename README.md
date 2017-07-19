@@ -1,5 +1,9 @@
+The environment:
+* Spring Boot Version : 1.5.3.RELEASE
+* JDK 1.8 or later
+* Maven 3.3+
+
 The following Spring projects are used in this sample app:
-Spring Boot Version : 1.5.3.RELEASE
 * http://projects.spring.io/spring-boot/[Spring Boot]
 * http://docs.spring.io/spring/docs/current/spring-framework-reference/html/mvc.html[Spring MVC]
 * http://projects.spring.io/spring-security/[Spring Security]
@@ -123,3 +127,42 @@ public class Auth2JdbcClientDetailsService extends JdbcClientDetailsService {
     }
 }
 ```
+配置 UserDetailsService
+* 注册一个Dao或者service提供与数据库打交道的能力;
+* 实现接口的方法:UserDetails loadUserByUsername(String username)
+
+```java
+@Service
+public class CustomUserDetailsService implements UserDetailsService { 
+    //...看代码实现
+}
+```
+启动应用,进行测试：
+获取授权码,可以通过curl命令，(password=spring&username=panda对应数据库表User的用户名密码)
+,(memoryclient:123456对应OAuth2Configuration的客户端认证)
+```sh
+curl -X POST -vu memoryclient:123456 http://localhost:8082/oauth/token -H "Accept: application/json" -d "password=spring&username=panda&grant_type=password&scope=read%20write&client_secret=123456&client_id=memoryclient"
+```
+得到json
+```json
+{
+  "access_token": "272c46b3-9368-4a66-9124-71dcbada2717",
+  "token_type": "bearer",
+  "refresh_token": "475954d0-e9d6-4687-8cce-ffbd557b5837",
+  "expires_in": 43199,
+  "scope": "read write"
+}
+```
+然后根据token 去访问需要认证的请求:
+```sh 
+curl http://localhost:8082/greeting -H "Authorization: Bearer 272c46b3-9368-4a66-9124-71dcbada2717"
+```
+得到json
+```json
+{"id":1,"content":"Hello, greeting!"}
+```
+
+#### module: storecros
+* 解决跨域访问,加密密码认证
+
+

@@ -15,6 +15,7 @@
     <modules>
         <module>memory</module>
         <module>store</module>
+        <module>storecros</module>
     </modules>
 
     <properties>

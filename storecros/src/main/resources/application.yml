@@ -1,0 +1,10 @@
+##共用配置值
+## 激活dev文件配置
+spring:
+  profiles:
+    active: dev #dev #prod
+
+security:
+    oauth2:
+        resource:
+            filter-order: 3
