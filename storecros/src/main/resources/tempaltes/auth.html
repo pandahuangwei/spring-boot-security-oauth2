@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript">
+
+        var form = new FormData();
+        form.append("grant_type", "password");
+        form.append("username", "panda2");
+        form.append("password", "12345678");
+        form.append("scope", "read write");
+
+
+        var url_1 = "http://localhost:8082/oauth/token";
+        console.log("开始请求本地地址===");
+        console.log(url_1);
+
+        var authoCode = btoa("memoryclient" + ':' + "123456");
+        console.log(authoCode);
+
+        var settings = {
+            "async": true,
+            "crossDomain": true,
+            "url": url_1,
+            "method": "POST",
+            "headers": {
+                "Authorization": "Basic "+ authoCode,
+                //"Authorization": "Basic eGluaGFvY2xpZW50OnhpbmhhbyQxMjM=",
+                "cache-control": "no-cache"
+            },
+            "processData": false,
+            "contentType": false,
+            "mimeType": "multipart/form-data",
+            "data": form
+        }
+
+        $.ajax(settings).done(function (response) {
+            console.log("本地："+response);
+        });
+
+    </script>
+</head>
+
+<body>
+Check the console.
+</body>
+</html>

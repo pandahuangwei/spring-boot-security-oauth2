@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
    `id` varchar(128) COLLATE utf8_bin DEFAULT NULL,
    `username` varchar(256) COLLATE utf8_bin DEFAULT NULL,
-   `password` varchar(10) COLLATE utf8_bin DEFAULT NULL
+   `password` varchar(256) COLLATE utf8_bin DEFAULT NULL
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 insert into user(id, username, password) values (1,'panda','spring');

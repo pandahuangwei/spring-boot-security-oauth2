@@ -10,6 +10,10 @@ The following Spring projects are used in this sample app:
 * http://projects.spring.io/spring-security-oauth/[Spring Security OAuth]
 * http://projects.spring.io/spring-data-jpa/[Spring Data JPA]
 
+#### 1 memory  使用内存数据进行security oauth2认证;
+#### 2 store  使用MySql保存验证数据进行security oauth2认证，以及使用用户明文密码作为验证;
+#### 3 storecros 在store的基础上，解决跨域访问，并将密码明文修改为密文.
+
 #### module: memory
 #### 该工程的认证使用的是内存数据(只是demo使用)
 通过mvn将工程引入IDE,
@@ -163,6 +167,152 @@ curl http://localhost:8082/greeting -H "Authorization: Bearer 272c46b3-9368-4a66
 ```
 
 #### module: storecros
-* 解决跨域访问,加密密码认证
+* 加密密码认证
+首先添加一个简单的加密工具类,并且将字符串12345678加密(12345678->25d55ad283aa400af464c76d713c07ad)
+```java
+public class EncryptUtil {
+
+    public static String encodeMD5(String plainText) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(plainText.getBytes());
+            byte b[] = md.digest();
+            int i;
+            StringBuffer buf = new StringBuffer("");
+            for (int offset = 0; offset < b.length; offset++) {
+                i = b[offset];
+                if (i < 0)
+                    i += 256;
+                if (i < 16)
+                    buf.append("0");
+                buf.append(Integer.toHexString(i));
+            }
+            //32位加密
+            return buf.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public static void main(String[] args) {
+        System.out.println(encodeMD5("12345678"));
+        //12345678->25d55ad283aa400af464c76d713c07ad
+    }
+}
+```
+在用户表加入一笔记录
+```sql
+insert into `user` (`id`, `username`, `password`) values('2','panda2','25d55ad283aa400af464c76d713c07ad');
+```
+在WebSecurityConfiguration的认证方法中加入密码认证
+```java
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        //auth.userDetailsService(userDetailsService);
+        //使用密码认证
+        auth.userDetailsService(userDetailsService).passwordEncoder(new PasswordEncoder() {
+            @Override
+            public String encode(CharSequence charSequence) {
+                return EncryptUtil.encodeMD5((String) charSequence);
+            }
+
+            @Override
+            public boolean matches(CharSequence charSequence, String encodedPassword) {
+                return encodedPassword.equals(EncryptUtil.encodeMD5((String) charSequence));
+            }
+        });
+    }
+```
+启动应用测试: 
+```sh 
+curl -X POST -vu memoryclient:123456 http://localhost:8082/oauth/token -H "Accept: application/json" -d "password=12345678&username=panda2&grant_type=password&scope=read%20write&client_secret=123456&client_id=memoryclient"
+```
+```json
+{"access_token":"3179862a-bb60-4727-b33e-686640688417",
+ "token_type":"bearer",
+ "refresh_token":"5befd5dd-f10c-40d8-a1cc-7326f959b727",
+ "expires_in":43199,
+ "scope":"read write"
+ }
+```
+正确拿到授权，说明应用确实是使用了加密后的密码认证的.
+
+* 解决跨域访问 
+前后端分离开发的时候，我们使用js ajax来访问认证试试,建立一个html如下:
+如(resources/tempaltes)下的auth.html
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript">
+
+        var form = new FormData();
+        form.append("grant_type", "password");
+        form.append("username", "panda2");
+        form.append("password", "12345678");
+        form.append("scope", "read write");
+
+
+        var url_1 = "http://localhost:8082/oauth/token";
+        console.log("开始请求本地地址===");
+        console.log(url_1);
+
+        var authoCode = btoa("memoryclient" + ':' + "123456");
+        console.log(authoCode);
+
+        var settings = {
+            "async": true,
+            "crossDomain": true,
+            "url": url_1,
+            "method": "POST",
+            "headers": {
+                "Authorization": "Basic "+ authoCode,
+                //"Authorization": "Basic eGluaGFvY2xpZW50OnhpbmhhbyQxMjM=",//Basic 后面的是btoa()加密后的结果
+                "cache-control": "no-cache"
+            },
+            "processData": false,
+            "contentType": false,
+            "mimeType": "multipart/form-data",
+            "data": form
+        }
+
+        $.ajax(settings).done(function (response) {
+            console.log("本地："+response);
+        });
+
+    </script>
+</head>
+
+<body>
+Check the console.
+</body>
+</html>
+```
+用浏览器打开该html,F12打开console窗口,查看输出:
+```html
+XMLHttpRequest cannot load http://localhost:8082/oauth/token. Response for preflight has invalid HTTP status code 401
+```
+我们在WebSecurityConfiguration 加入跨域解决
+```java
+    @Bean
+    public FilterRegistrationBean corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOrigin("*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        source.registerCorsConfiguration("/**", config);
+        FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);//这行是重点，如果设置ORDER=0的话是不起作用的
+        return bean;
+    }
+```
+再次在浏览器中运行上面的html，console控制台会输出:
+```json
+{"access_token":"3179862a-bb60-4727-b33e-686640688417","token_type":"bearer","refresh_token":"5befd5dd-f10c-40d8-a1cc-7326f959b727","expires_in":42331,"scope":"read write"}
+```
+如此,前后端分离开发产生的跨域访问即解决了.
 
 
