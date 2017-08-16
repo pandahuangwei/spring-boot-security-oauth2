@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 
 /**
- * @author Panda.HuangWei.
+ * @author panda.
  * @since 2017-07-16 17:39.
  */
 @Component

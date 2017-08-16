@@ -4,7 +4,7 @@ import com.panda.domain.User;
 import org.springframework.data.repository.CrudRepository;
 
 /**
- * @author Panda.HuangWei.
+ * @author panda.
  * @since 2017-07-16 17:46.
  */
 public interface UserRepository extends CrudRepository<User, Long> {

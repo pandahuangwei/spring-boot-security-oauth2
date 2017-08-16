@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * @author Panda.HuangWei.
+ * @author panda.
  * @since 2017-07-16 17:49.
  */
 @Service

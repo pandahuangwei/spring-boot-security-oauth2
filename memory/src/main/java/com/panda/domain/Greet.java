@@ -1,7 +1,7 @@
 package com.panda.domain;
 
 /**
- * @author Panda.HuangWei.
+ * @author panda.
  * @since 2017-07-16 14:24.
  */
 public class Greet {

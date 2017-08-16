@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * @author Panda.HuangWei.
+ * @author panda.
  * @since 2017-07-16 14:25.
  */
 @RestController

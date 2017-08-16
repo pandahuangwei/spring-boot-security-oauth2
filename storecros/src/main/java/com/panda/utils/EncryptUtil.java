@@ -4,7 +4,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * @author Panda.HuangWei.
+ * @author panda.
  * @since 2017-07-20 20:32.
  */
 public class EncryptUtil {

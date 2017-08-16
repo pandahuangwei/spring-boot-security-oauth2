@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 /**
- * @author Panda.HuangWei.
+ * @author panda.
  * @since 2017-07-16 17:57.
  */
 @Configuration

@@ -19,7 +19,7 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 
 /**
- * @author Panda.HuangWei.
+ * @author panda.
  * @since 2017-07-16 11:23.
  */
 @Configuration
